@@ -8,6 +8,7 @@ declare global {
       HOST: string;
       CORS_ORIGIN: string;
       COMMON_RATE_LIMIT_MAX_REQUESTS: number;
+      DATABASE_URL: string;
     }
   }
 }

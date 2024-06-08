@@ -1,5 +1,5 @@
 import { inject } from 'inversify';
-import { BaseHttpController, controller, httpGet } from 'inversify-express-utils';
+import { BaseHttpController, controller, httpPost } from 'inversify-express-utils';
 
 import TYPES from '../../common/constants/container-types';
 import { AuthService } from './auth.service';
@@ -10,8 +10,18 @@ export class AuthController extends BaseHttpController {
     super();
   }
 
-  @httpGet('/login')
-  login() {
+  @httpPost('/login')
+  public async login() {
     return this.authService.login();
+  }
+
+  @httpPost('/signup')
+  public async signup() {
+    return this.authService.signup();
+  }
+
+  @httpPost('/logout')
+  public async logout() {
+    return this.authService.logout();
   }
 }
