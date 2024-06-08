@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"target": "ES2020",
+		"module": "ES2020", 
+		"moduleResolution": "bundler",
+		"outDir": "./backend/dist", 
+		"rootDir": "./backend",
+		"strict": true, 
+		"esModuleInterop": true, 
+		"skipLibCheck": true ,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true, 
+	},
+	"ts-node": {
+		"esm": true
+	},
+	"include": ["backend/src/**/*", "backend/process-env.d.ts"], 
+	"exclude": ["node_modules", "**/*.spec.ts", "frontend"],
+	
+}
