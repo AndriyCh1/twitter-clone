@@ -9,6 +9,8 @@ declare global {
       CORS_ORIGIN: string;
       COMMON_RATE_LIMIT_MAX_REQUESTS: number;
       DATABASE_URL: string;
+      ACCESS_TOKEN_SECRET: string;
+      NODE_ENV: 'development' | 'production' | 'test' | 'staging';
     }
   }
 }
