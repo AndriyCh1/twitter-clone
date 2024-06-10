@@ -3,7 +3,7 @@ import passport from 'passport';
 
 import { BadRequestException, UnauthorizedException } from '../../config';
 import { IUser } from '../models';
-import { IUserRequest } from '../types/user-requst';
+import { IUserRequest } from '../types/user-request';
 
 interface IAuthConfig {
   optional?: boolean;

@@ -14,7 +14,7 @@ export class DatabaseConnection {
 
   public async connect(connectionString: string): Promise<void> {
     try {
-      mongoose.connect(connectionString);
+      await mongoose.connect(connectionString);
       this.logger.info(`Mongoose connected to ${connectionString}`);
     } catch (error) {
       this.logger.error(`Mongoose connection error: ${error}`);

@@ -9,4 +9,8 @@ export const env = cleanEnv(process.env, {
   DATABASE_URL: str(),
   ACCESS_TOKEN_SECRET: str(),
   NODE_ENV: str({ choices: ['development', 'test', 'production', 'staging'] }),
+  S3_ACCESS_KEY: str(),
+  S3_SECRET_ACCESS_KEY: str(),
+  S3_REGION: str(),
+  S3_BUCKET: str(),
 });

@@ -13,7 +13,7 @@ import {
 import TYPES from '../../common/constants/container-types';
 import auth from '../../common/middlewares/auth.middleware';
 import validate from '../../common/middlewares/validator.middleware';
-import { IUserRequest } from '../../common/types/user-requst';
+import { IUserRequest } from '../../common/types/user-request';
 import { attachJwtCookie, removeJwtCookie } from '../../common/utils/jwt-cookie';
 import { AuthService } from './auth.service';
 import { LoginDto } from './validators/login.schema';
