@@ -6,6 +6,8 @@ const TYPES = {
   UsersService: Symbol.for('UsersService'),
   UsersController: Symbol.for('UsersController'),
   S3Service: Symbol.for('S3Service'),
+  PostsService: Symbol.for('PostsService'),
+  PostsController: Symbol.for('PostsController'),
 };
 
 export default TYPES;

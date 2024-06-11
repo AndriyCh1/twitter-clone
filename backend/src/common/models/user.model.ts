@@ -11,6 +11,7 @@ export interface IUser extends mongoose.Document {
   coverImg: string;
   bio: string;
   link: string;
+  likedPosts: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,6 +40,7 @@ const userSchema = new mongoose.Schema(
     coverImg: { type: String, default: '' },
     bio: { type: String, default: '' },
     link: { type: String, default: '' },
+    likedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post', default: [] }],
   },
   { timestamps: true }
 );

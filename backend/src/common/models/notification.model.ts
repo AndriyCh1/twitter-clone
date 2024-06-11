@@ -1,5 +1,9 @@
 import mongoose from 'mongoose';
 
+export enum NotificationType {
+  FOLLOW = 'follow',
+  LIKE = 'like',
+}
 export interface INotification extends mongoose.Document {
   from: string;
   to: string;
@@ -22,7 +26,7 @@ const notificationSchema = new mongoose.Schema(
     type: {
       type: String,
       required: true,
-      enum: ['follow', 'like'],
+      enum: NotificationType,
     },
     read: {
       type: Boolean,
