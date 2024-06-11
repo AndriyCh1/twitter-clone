@@ -121,6 +121,8 @@ export class UsersService {
       if (user.coverImg) {
         await this.s3Service.removeObject(IMAGE_UPLOAD_BUCKET, user.coverImg);
       }
+
+      // TODO: Add images exception handling
       const imagePath = `${IMAGE_UPLOAD_FOLDER}${crypto.randomUUID()}`;
       await this.s3Service.putObject(IMAGE_UPLOAD_BUCKET, imagePath, coverImg);
 

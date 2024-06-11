@@ -24,3 +24,5 @@ export const updateProfileSchema = z
       path: ['body.newPassword', 'body.currentPassword'],
     }
   );
+
+export type UpdateProfileDto = z.TypeOf<typeof updateProfileSchema>['body'];
