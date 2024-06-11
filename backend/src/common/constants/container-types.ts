@@ -8,6 +8,8 @@ const TYPES = {
   S3Service: Symbol.for('S3Service'),
   PostsService: Symbol.for('PostsService'),
   PostsController: Symbol.for('PostsController'),
+  NotificationsController: Symbol.for('NotificationsController'),
+  NotificationsService: Symbol.for('NotificationsService'),
 };
 
 export default TYPES;
