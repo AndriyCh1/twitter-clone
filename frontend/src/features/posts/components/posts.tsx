@@ -10,6 +10,7 @@ interface IProps {
 // TODO: Use feed type
 export const Posts = ({ feedType }: IProps) => {
   const isLoading = false;
+  console.log(feedType, "feedType");
 
   return (
     <>

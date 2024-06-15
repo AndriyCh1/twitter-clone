@@ -1,3 +1,5 @@
+import { Notifications } from "../../features/notifications";
+
 export const NotificationsPage = () => {
-  return <div>Notifications</div>;
+  return <Notifications />;
 };
