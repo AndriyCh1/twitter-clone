@@ -2,7 +2,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { HomePage } from "../../pages/home";
 import { SignUpPage } from "../../pages/auth/signup";
 import { LoginPage } from "../../pages/auth/login";
-import { MainLayout } from "../../layout/main";
+import { MainLayout } from "../../components/layouts";
 import { routes } from "../consts";
 import { ProfilePage } from "../../pages/profile";
 import { NotificationsPage } from "../../pages/notifications";
