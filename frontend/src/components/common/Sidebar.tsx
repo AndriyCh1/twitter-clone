@@ -6,16 +6,11 @@ import { FaUser } from "react-icons/fa";
 import { BiLogOut } from "react-icons/bi";
 import { routes } from "../../app/consts";
 import { MouseEvent } from "react";
-import { useLogout } from "../../features/auth";
+import { useAuthUser, useLogout } from "../../features/auth";
 
 export const Sidebar = () => {
-  const data = {
-    fullName: "John Doe",
-    username: "johndoe",
-    profileImg: "/avatars/boy1.png",
-  };
-
   const { mutate: mutateLogout } = useLogout();
+  const { data: user } = useAuthUser();
 
   const handleLogout = (e: MouseEvent<SVGElement>) => {
     e.preventDefault();
@@ -51,32 +46,34 @@ export const Sidebar = () => {
             </Link>
           </li>
 
-          <li className="flex justify-center md:justify-start">
-            <Link
-              to={routes.profile.build(data?.username)}
-              className="flex gap-3 items-center hover:bg-stone-900 transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer"
-            >
-              <FaUser className="w-6 h-6" />
-              <span className="text-lg hidden md:block">Profile</span>
-            </Link>
-          </li>
+          {user && (
+            <li className="flex justify-center md:justify-start">
+              <Link
+                to={routes.profile.build(user.username)}
+                className="flex gap-3 items-center hover:bg-stone-900 transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer"
+              >
+                <FaUser className="w-6 h-6" />
+                <span className="text-lg hidden md:block">Profile</span>
+              </Link>
+            </li>
+          )}
         </ul>
-        {data && (
+        {user && (
           <Link
-            to={routes.profile.build(data.username)}
+            to={routes.profile.build(user.username)}
             className="mt-auto mb-10 flex gap-2 items-start transition-all duration-300 hover:bg-[#181818] py-2 px-4 rounded-full"
           >
             <div className="avatar hidden md:inline-flex">
               <div className="w-8 rounded-full">
-                <img src={data?.profileImg || "/avatar-placeholder.png"} />
+                <img src={user?.profileImg || "/avatar-placeholder.png"} />
               </div>
             </div>
             <div className="flex justify-between flex-1">
               <div className="hidden md:block">
                 <p className="text-white font-bold text-sm w-20 truncate">
-                  {data?.fullName}
+                  {user?.fullName}
                 </p>
-                <p className="text-slate-500 text-sm">@{data?.username}</p>
+                <p className="text-slate-500 text-sm">@{user?.username}</p>
               </div>
               <BiLogOut
                 className="w-5 h-5 cursor-pointer"

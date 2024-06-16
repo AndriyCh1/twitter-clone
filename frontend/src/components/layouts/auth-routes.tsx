@@ -8,7 +8,6 @@ interface IProps {
 }
 export const AuthRoutes = ({ protect = true }: IProps) => {
   const { data: user, isLoading, error } = useAuthUser();
-  console.log(user, "user");
 
   if (isLoading) {
     return (
@@ -17,8 +16,6 @@ export const AuthRoutes = ({ protect = true }: IProps) => {
       </div>
     );
   }
-
-  console.log(user);
 
   if (protect) {
     // if route is protected and user is not logged in redirect to login, else render children
