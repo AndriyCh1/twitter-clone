@@ -1,5 +1,11 @@
-import { RouterProvider } from "./providers";
+import { RouterProvider, QueryProvider } from "./providers";
+import { Toaster } from "react-hot-toast";
 
 export const App = () => {
-  return <RouterProvider />;
+  return (
+    <QueryProvider>
+      <RouterProvider />
+      <Toaster position="top-right" />
+    </QueryProvider>
+  );
 };

@@ -11,19 +11,25 @@ import {
 import { FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { routes } from "../../../app/consts";
+import { useSignUp } from "../api";
+import { getErrorMessage } from "../../../utils/error-message";
 
 export const SignUpForm = () => {
-  const { register, handleSubmit } = useForm<ISignUpFormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ISignUpFormData>({
     resolver: zodResolver(SignUpSchema),
   });
 
+  const { mutate: signUpMutate, isPending, error, isError } = useSignUp();
+
   const onSubmit = (data: ISignUpFormData) => {
-    // FIXME:
-    console.log(data);
+    signUpMutate(data);
   };
 
-  // FIXME:
-  const isError = false;
+  const errorsArr = Object.values(errors);
 
   return (
     <div className="max-w-screen-xl mx-auto flex h-screen px-10">
@@ -32,7 +38,7 @@ export const SignUpForm = () => {
       </div>
       <div className="flex-1 flex flex-col justify-center items-center">
         <form
-          className="lg:w-2/3  mx-auto md:mx-20 flex gap-4 flex-col"
+          className="lg:w-2/3 mx-auto md:mx-20 flex gap-4 flex-col"
           onSubmit={handleSubmit(onSubmit)}
         >
           <XSvg className="w-24 lg:hidden fill-white" />
@@ -46,6 +52,7 @@ export const SignUpForm = () => {
               {...register("email")}
             />
           </label>
+
           <div className="flex gap-4 flex-wrap">
             <label className="input input-bordered rounded flex items-center gap-2 flex-1">
               <FaUser />
@@ -60,7 +67,7 @@ export const SignUpForm = () => {
               <MdDriveFileRenameOutline />
               <input
                 type="text"
-                className="grow"
+                // className="grow"
                 placeholder="Full Name"
                 {...register("fullName")}
               />
@@ -75,10 +82,17 @@ export const SignUpForm = () => {
               {...register("password")}
             />
           </label>
-          <button className="btn rounded-full btn-primary text-white">
-            Sign up
+
+          <button
+            className="btn rounded-full btn-primary text-white"
+            type="submit"
+          >
+            {isPending ? "Signing up..." : "Sign up"}
           </button>
-          {isError && <p className="text-red-500">Something went wrong</p>}
+          {!!errorsArr.length && (
+            <p className="text-red-500">{errorsArr[0].message}</p>
+          )}
+          {isError && <p className="text-red-500">{getErrorMessage(error)}</p>}
         </form>
         <div className="flex flex-col lg:w-2/3 gap-2 mt-4">
           <p className="text-white text-lg">Already have an account?</p>

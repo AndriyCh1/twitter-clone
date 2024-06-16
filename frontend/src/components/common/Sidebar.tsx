@@ -5,12 +5,21 @@ import { IoNotifications } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { BiLogOut } from "react-icons/bi";
 import { routes } from "../../app/consts";
+import { MouseEvent } from "react";
+import { useLogout } from "../../features/auth";
 
 export const Sidebar = () => {
   const data = {
     fullName: "John Doe",
     username: "johndoe",
     profileImg: "/avatars/boy1.png",
+  };
+
+  const { mutate: mutateLogout } = useLogout();
+
+  const handleLogout = (e: MouseEvent<SVGElement>) => {
+    e.preventDefault();
+    mutateLogout();
   };
 
   return (
@@ -69,7 +78,10 @@ export const Sidebar = () => {
                 </p>
                 <p className="text-slate-500 text-sm">@{data?.username}</p>
               </div>
-              <BiLogOut className="w-5 h-5 cursor-pointer" />
+              <BiLogOut
+                className="w-5 h-5 cursor-pointer"
+                onClick={handleLogout}
+              />
             </div>
           </Link>
         )}
