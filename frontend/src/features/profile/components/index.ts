@@ -5,4 +5,4 @@ export * from "./back-button";
 export * from "./cover-image";
 export * from "./profile-header";
 export * from "./profile-header-details";
-export * from "./feed-type-switch";
+export * from "./profile-posts";

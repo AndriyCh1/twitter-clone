@@ -1,10 +1,18 @@
-interface IUser {
+export interface IUser {
+  _id: string;
   username: string;
-  profileImg: string;
   fullName: string;
+  email: string;
+  followers: string[];
+  following: string[];
+  profileImg: string;
+  coverImg: string;
+  bio: string;
+  link: string;
+  likedPosts: string[];
 }
 
-interface IComment {
+export interface IComment {
   _id: string;
   text: string;
   user: IUser;

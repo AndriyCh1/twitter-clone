@@ -3,26 +3,44 @@ import { BiRepost } from "react-icons/bi";
 import { FaRegHeart } from "react-icons/fa";
 import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { IPost } from "../types";
+import { useAuthUser } from "../../auth";
+import { useDeletePost } from "../api";
+import { LoadingSpinner } from "../../../components/ui";
+import toast from "react-hot-toast";
+import { getErrorMessage } from "../../../utils/error-message";
 
 interface IProps {
   post: IPost;
 }
 
 export const Post = ({ post }: IProps) => {
+  const { data: authUser } = useAuthUser();
+  const {
+    mutate: deletePostMutate,
+    isPending: isDeleting,
+    error: deleteError,
+  } = useDeletePost();
+
+  useEffect(() => {
+    if (deleteError) {
+      toast.error(getErrorMessage(deleteError));
+    }
+  }, [deleteError]);
+
   const [comment, setComment] = useState("");
   const postOwner = post.user;
   const isLiked = false;
 
-  const isMyPost = true;
-
+  const isMyPost = authUser?._id === postOwner._id;
   const formattedDate = "1h";
-
   const isCommenting = false;
 
-  const handleDeletePost = () => {};
+  const handleDeletePost = () => {
+    deletePostMutate(post._id);
+  };
 
   const handlePostComment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,10 +73,13 @@ export const Post = ({ post }: IProps) => {
             </span>
             {isMyPost && (
               <span className="flex justify-end flex-1">
-                <FaTrash
-                  className="cursor-pointer hover:text-red-500"
-                  onClick={handleDeletePost}
-                />
+                {!isDeleting && (
+                  <FaTrash
+                    className="cursor-pointer hover:text-red-500"
+                    onClick={handleDeletePost}
+                  />
+                )}
+                {isDeleting && <LoadingSpinner size="sm" />}
               </span>
             )}
           </div>

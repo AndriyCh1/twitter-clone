@@ -1,52 +1,49 @@
 import { useState } from "react";
 
-import {
-  BackButton,
-  FeedTypeSwitch,
-  FeedType as ProfileFeedType,
-  ProfileHeader,
-} from ".";
+import { BackButton, ProfilePosts, ProfileHeader } from ".";
 
-import { Posts } from "../../posts";
 import { ProfileHeaderSkeleton } from "../skeletons";
 import { POSTS } from "../../../utils/db/dummy";
-import { FeedType } from "../../feed";
+import { SwitchFeed } from "../../../components/common";
+import { useAuthUser } from "../../auth";
+
+const feedTypes = ["posts", "likes"] as const;
+
+export type FeedType = (typeof feedTypes)[number];
 
 export const Profile = () => {
-  const [feedType, setFeedType] = useState<ProfileFeedType>("posts");
+  const [feedType, setFeedType] = useState<FeedType>("posts");
+  const { data: user, isLoading } = useAuthUser();
 
-  const isLoading = false;
+  if (isLoading) {
+    return (
+      <div className="flex-[4_4_0]  border-r border-gray-700 min-h-screen ">
+        <ProfileHeaderSkeleton />
+      </div>
+    );
+  }
 
-  const user = {
-    _id: "1",
-    fullName: "John Doe",
-    username: "johndoe",
-    profileImg: "/avatars/boy2.png",
-    coverImg: "/cover.png",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    link: "https://youtube.com/@asaprogrammer_",
-    following: ["1", "2", "3"],
-    followers: ["1", "2", "3"],
-  };
+  if (!user) {
+    return (
+      <div className="flex-[4_4_0]  border-r border-gray-700 min-h-screen ">
+        <p className="text-center text-lg mt-4">User not found</p>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div className="flex-[4_4_0]  border-r border-gray-700 min-h-screen ">
-        {isLoading && <ProfileHeaderSkeleton />}
-        {!isLoading && !user && (
-          <p className="text-center text-lg mt-4">User not found</p>
-        )}
-        <div className="flex flex-col">
-          {!isLoading && user && (
-            <>
-              <BackButton user={user?.fullName} posts={POSTS?.length} />
-              <ProfileHeader user={user} />
-              <FeedTypeSwitch type={feedType} onChange={setFeedType} />
-            </>
-          )}
-          <Posts feedType={FeedType.FOR_YOU} />
-        </div>
+    <div className="flex-[4_4_0]  border-r border-gray-700 min-h-screen ">
+      <div className="flex flex-col">
+        {/* // FIXME: */}
+        <BackButton user={user?.fullName} posts={POSTS?.length} />
+        <ProfileHeader user={user} />
+        <SwitchFeed
+          current={feedType}
+          onChange={(type) => setFeedType(type as FeedType)}
+          types={feedTypes}
+        />
+        <ProfilePosts type={feedType} userId={user._id} />
       </div>
-    </>
+    </div>
   );
 };

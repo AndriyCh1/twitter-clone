@@ -1,17 +1,13 @@
 import { Post } from "./post";
 import { PostsSkeleton } from "../skeletons";
-import { POSTS } from "../../../utils/db/dummy";
-import { FeedType } from "../../feed";
+import { IPost } from "../types/post";
 
 interface IProps {
-  feedType: FeedType;
+  posts: IPost[];
+  isLoading?: boolean;
 }
 
-// TODO: Use feed type
-export const Posts = ({ feedType }: IProps) => {
-  const isLoading = false;
-  console.log(feedType, "feedType");
-
+export const Posts = ({ isLoading = false, posts }: IProps) => {
   return (
     <>
       {isLoading && (
@@ -19,12 +15,12 @@ export const Posts = ({ feedType }: IProps) => {
           <PostsSkeleton />
         </div>
       )}
-      {!isLoading && POSTS?.length === 0 && (
+      {!isLoading && posts?.length === 0 && (
         <p className="text-center my-4">No posts in this tab. Switch 👻</p>
       )}
-      {!isLoading && POSTS && (
+      {!isLoading && posts && (
         <div>
-          {POSTS.map((post) => (
+          {posts.map((post) => (
             <Post key={post._id} post={post} />
           ))}
         </div>
