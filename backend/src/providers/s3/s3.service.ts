@@ -22,20 +22,27 @@ export class S3Service {
       region: env.S3_REGION,
       credentials: {
         accessKeyId: env.S3_ACCESS_KEY,
-        secretAccessKey: env.S3_ACCESS_KEY,
+        secretAccessKey: env.S3_SECRET_ACCESS_KEY,
       },
     });
   }
 
-  async putObject(bucketName: string, key: string, body: PutObjectCommandInput['Body']) {
+  async putObject(bucketName: string, key: string, body: PutObjectCommandInput['Body'], contentType?: string) {
     const command = new PutObjectCommand({
       Bucket: bucketName,
       Key: key,
       Body: body,
+      ContentType: contentType,
     });
 
+    console.log({
+      Bucket: bucketName,
+      Key: key,
+      Body: body,
+      ContentType: contentType,
+    });
     try {
-      return await this.s3.send(command);
+      return this.s3.send(command);
     } catch (error) {
       this.logger.error(`Error putting object in S3: ${error}`);
       throw error;
@@ -49,7 +56,7 @@ export class S3Service {
     });
 
     try {
-      return await this.s3.send(command);
+      return this.s3.send(command);
     } catch (error) {
       this.logger.error(`Error listing objects in S3: ${error}`);
       throw error;
@@ -63,7 +70,7 @@ export class S3Service {
     });
 
     try {
-      return await this.s3.send(command);
+      return this.s3.send(command);
     } catch (error) {
       this.logger.error(`Error getting object from S3: ${error}`);
       throw error;
@@ -77,7 +84,7 @@ export class S3Service {
     });
 
     try {
-      return await this.s3.send(command);
+      return this.s3.send(command);
     } catch (error) {
       this.logger.error(`Error removing object from S3: ${error}`);
       throw error;

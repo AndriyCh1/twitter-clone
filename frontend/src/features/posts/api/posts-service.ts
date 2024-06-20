@@ -1,5 +1,5 @@
 import { apiService } from "../../../app/api-service";
-import { IPost } from "../types";
+import { IPost, IPostCreatePayload, IPostCreateResponse } from "../types";
 
 class PostsService {
   public async getAllPosts() {
@@ -19,6 +19,20 @@ class PostsService {
 
   public async getLikedPosts(userId: string) {
     const res = await apiService.get<IPost[]>(`/posts/liked/${userId}`);
+    return res.data;
+  }
+
+  public async createPost(data: IPostCreatePayload) {
+    const { text, img } = data;
+
+    const formData = new FormData();
+    if (img) formData.append("image", img);
+    if (text) formData.append("text", text);
+
+    const res = await apiService.post<IPostCreateResponse>("/posts", data, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
     return res.data;
   }
 

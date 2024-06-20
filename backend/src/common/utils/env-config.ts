@@ -13,4 +13,6 @@ export const env = cleanEnv(process.env, {
   S3_SECRET_ACCESS_KEY: str(),
   S3_REGION: str(),
   S3_BUCKET: str(),
+  CORS_ORIGIN: str(),
+  CLOUDFRONT_URL: str(),
 });

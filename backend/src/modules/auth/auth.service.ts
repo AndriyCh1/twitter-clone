@@ -16,7 +16,7 @@ class AuthService {
     const user = await User.findOne({ email });
 
     if (!user) {
-      throw new BadRequestException('Invalid credentials 1');
+      throw new BadRequestException('Invalid credentials');
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);

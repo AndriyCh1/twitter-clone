@@ -1,9 +1,11 @@
 import { AxiosError, isAxiosError } from "axios";
 
 export const getErrorMessage = (error: Error | AxiosError) => {
+  let errorMessage = "";
+
   if (isAxiosError(error)) {
-    return error.response?.data?.errorMessage || "An error occurred";
+    errorMessage = error.response?.data?.errorMessage;
   }
 
-  return error.message || "Something went wrong";
+  return errorMessage || error.message || "Something went wrong";
 };

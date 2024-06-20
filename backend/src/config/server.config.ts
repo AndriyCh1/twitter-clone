@@ -5,6 +5,7 @@ import { Application, NextFunction, Request, Response } from 'express';
 import passport from 'passport';
 
 import TYPES from '../common/constants/container-types';
+import { env } from '../common/utils/env-config';
 import { DatabaseConnection } from '../database';
 import { AccessTokenStrategy } from '../modules/auth/strategies/access-token.strategy';
 import { BaseException, InternalServerException } from './exception.config';
@@ -12,7 +13,7 @@ import { container } from './inversify.config';
 
 export async function serverConfig(app: Application) {
   app.use(cookieParser());
-  app.use(cors());
+  app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
   app.use(urlencoded({ extended: true }));
   app.use(json({ limit: '5mb' }));
   app.use(passport.initialize());
