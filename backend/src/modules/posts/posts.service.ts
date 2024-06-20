@@ -89,7 +89,7 @@ export class PostsService {
 
     if (img) {
       imageName = generateUniqueKey();
-      const buffer = await sharp(img.buffer).resize({ height: 1920, width: 1080, fit: 'contain' }).toBuffer();
+      const buffer = await sharp(img.buffer).resize({ height: 1080, width: 1920, fit: 'contain' }).toBuffer();
       await this.s3Service.putObject(IMAGE_UPLOAD_BUCKET, imageName, buffer, img.mimetype);
     }
 

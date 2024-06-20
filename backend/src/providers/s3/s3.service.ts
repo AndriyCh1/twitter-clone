@@ -35,12 +35,6 @@ export class S3Service {
       ContentType: contentType,
     });
 
-    console.log({
-      Bucket: bucketName,
-      Key: key,
-      Body: body,
-      ContentType: contentType,
-    });
     try {
       return this.s3.send(command);
     } catch (error) {
