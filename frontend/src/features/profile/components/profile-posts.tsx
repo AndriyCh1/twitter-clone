@@ -1,13 +1,14 @@
-import { Posts, useGetAllPosts, useGetLikedPosts } from "../../posts";
+import { Posts, useGetLikedPosts, useGetUserPosts } from "../../posts";
 import { FeedType } from "./profile";
 
 interface IProps {
   type: FeedType;
   userId: string;
+  username: string;
 }
 
-export const ProfilePosts = ({ type, userId }: IProps) => {
-  const allPostsResult = useGetAllPosts({
+export const ProfilePosts = ({ type, userId, username }: IProps) => {
+  const allPostsResult = useGetUserPosts(username, {
     enabled: type === "posts",
   });
   const likedPostsResult = useGetLikedPosts(userId, {

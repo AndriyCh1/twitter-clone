@@ -1,1 +1,6 @@
-export { useGetSuggestedUsers, usersKeys, usersService } from "./api";
+export {
+  useGetSuggestedUsers,
+  usersKeys,
+  usersService,
+  useGetUserProfile,
+} from "./api";
