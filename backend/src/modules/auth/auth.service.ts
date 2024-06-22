@@ -3,6 +3,7 @@ import { injectable } from 'inversify';
 import jwt from 'jsonwebtoken';
 
 import { User } from '../../common/models/user.model';
+import { cloudfrontPath } from '../../common/utils/cloudfront-path';
 import { BadRequestException } from '../../config';
 import { accessTokenConfig, JwtConfig, JwtPayload } from '../../config/jwt.config';
 import { LoginData } from './types/login-data.type';
@@ -33,8 +34,8 @@ class AuthService {
         fullName: user.fullName,
         username: user.username,
         email: user.email,
-        profileImg: user.profileImg,
-        coverImg: user.coverImg,
+        profileImg: user.profileImg ? cloudfrontPath(user.profileImg) : undefined,
+        coverImg: user.coverImg ? cloudfrontPath(user.coverImg) : undefined,
         followers: user.followers,
         following: user.following,
       },
@@ -90,7 +91,12 @@ class AuthService {
   }
 
   public async getMe(id: string) {
-    return User.findById(id).select({ password: 0 });
+    const user = await User.findById(id).select({ password: 0 });
+
+    if (user?.profileImg) user.profileImg = cloudfrontPath(user.profileImg);
+    if (user?.coverImg) user.coverImg = cloudfrontPath(user.coverImg);
+
+    return user;
   }
 
   private generateToken(payload: JwtPayload, config: JwtConfig) {

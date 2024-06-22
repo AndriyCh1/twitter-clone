@@ -1,22 +1,23 @@
 import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
 import { inject, injectable } from 'inversify';
 
 import TYPES from '../../common/constants/container-types';
 import { IUser, Notification, User } from '../../common/models';
+import { cloudfrontPath } from '../../common/utils/cloudfront-path';
 import { env } from '../../common/utils/env-config';
+import { generateUniqueKey } from '../../common/utils/generate-unique-key';
 import { BadRequestException, Logger, NotFoundException } from '../../config';
 import { S3Service } from '../../providers/s3/s3.service';
 import { UpdateProfileData } from './types/update-profile.type';
 
 const IMAGE_UPLOAD_BUCKET = env.S3_BUCKET;
-const IMAGE_UPLOAD_FOLDER = 'user-images/';
 
 @injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
 
   constructor(@inject(TYPES.S3Service) private readonly s3Service: S3Service) {}
+
   public async getUserProfile(username: string) {
     const user = await User.findOne({ username }).select({ password: 0 });
 
@@ -24,6 +25,8 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
+    if (user.profileImg) user.profileImg = cloudfrontPath(user.profileImg);
+    if (user.coverImg) user.coverImg = cloudfrontPath(user.coverImg);
     return user;
   }
 
@@ -39,6 +42,11 @@ export class UsersService {
         .filter((u) => !usersFollowedByMe.following.includes(u._id))
         .slice(0, 4)
         .map((u) => ({ ...u, password: null }));
+
+      for (const user of filtered) {
+        if (user.profileImg) user.profileImg = cloudfrontPath(user.profileImg);
+        if (user.coverImg) user.coverImg = cloudfrontPath(user.coverImg);
+      }
 
       return filtered;
     } catch (error) {
@@ -111,10 +119,10 @@ export class UsersService {
       if (user.profileImg) {
         await this.s3Service.removeObject(IMAGE_UPLOAD_BUCKET, user.profileImg);
       }
-      const imagePath = `${IMAGE_UPLOAD_FOLDER}${crypto.randomUUID()}`;
-      await this.s3Service.putObject(IMAGE_UPLOAD_BUCKET, imagePath, profileImg);
+      const imageName = generateUniqueKey();
+      await this.s3Service.putObject(IMAGE_UPLOAD_BUCKET, imageName, profileImg.buffer);
 
-      user.profileImg = imagePath;
+      user.profileImg = imageName;
     }
 
     if (coverImg) {
@@ -122,10 +130,8 @@ export class UsersService {
         await this.s3Service.removeObject(IMAGE_UPLOAD_BUCKET, user.coverImg);
       }
 
-      // TODO: Add images exception handling
-      const imagePath = `${IMAGE_UPLOAD_FOLDER}${crypto.randomUUID()}`;
-      await this.s3Service.putObject(IMAGE_UPLOAD_BUCKET, imagePath, coverImg);
-
+      const imagePath = generateUniqueKey();
+      await this.s3Service.putObject(IMAGE_UPLOAD_BUCKET, imagePath, coverImg.buffer);
       user.coverImg = imagePath;
     }
 
@@ -145,6 +151,9 @@ export class UsersService {
     user.link = link || user.link;
     await user.save();
 
-    return User.findById(id).select({ password: 0 });
+    const updatedUser = await User.findById(id).select({ password: 0 });
+    if (updatedUser?.profileImg) updatedUser.profileImg = cloudfrontPath(updatedUser.profileImg);
+    if (updatedUser?.coverImg) updatedUser.coverImg = cloudfrontPath(updatedUser.coverImg);
+    return updatedUser;
   }
 }
