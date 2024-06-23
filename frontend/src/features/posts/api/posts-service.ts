@@ -40,6 +40,11 @@ class PostsService {
     const res = await apiService.delete<boolean>(`/posts/${id}`);
     return res.data;
   }
+
+  public async likePost(postId: string) {
+    const res = await apiService.patch<string[]>(`/posts/like/${postId}`);
+    return res.data;
+  }
 }
 
 export const postsService = new PostsService();

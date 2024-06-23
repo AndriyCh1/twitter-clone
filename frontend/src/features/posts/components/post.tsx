@@ -7,10 +7,11 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { IPost } from "../types";
 import { useAuthUser } from "../../auth";
-import { useDeletePost } from "../api";
+import { useDeletePost, useLikePost } from "../api";
 import { LoadingSpinner } from "../../../components/ui";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "../../../utils/error-message";
+import { hoursAgoOrDate } from "../../../utils/format-date";
 
 interface IProps {
   post: IPost;
@@ -24,6 +25,8 @@ export const Post = ({ post }: IProps) => {
     error: deleteError,
   } = useDeletePost();
 
+  const { mutate: likePost, isPending: isLiking } = useLikePost();
+
   useEffect(() => {
     if (deleteError) {
       toast.error(getErrorMessage(deleteError));
@@ -32,10 +35,9 @@ export const Post = ({ post }: IProps) => {
 
   const [comment, setComment] = useState("");
   const postOwner = post.user;
-  const isLiked = false;
+  const isLiked = post.likes.includes(authUser?._id || "");
 
   const isMyPost = authUser?._id === postOwner._id;
-  const formattedDate = "1h";
   const isCommenting = false;
 
   const handleDeletePost = () => {
@@ -46,7 +48,20 @@ export const Post = ({ post }: IProps) => {
     e.preventDefault();
   };
 
-  const handleLikePost = () => {};
+  const handleLikePost = () => {
+    likePost(post._id);
+  };
+
+  const getFormattedDate = () => {
+    const createdAt = new Date(post.createdAt);
+    const updatedAt = new Date(post.updatedAt);
+
+    const relativeTime = hoursAgoOrDate(createdAt);
+
+    return createdAt.toDateString() === updatedAt.toDateString()
+      ? relativeTime
+      : `${relativeTime} · edited`;
+  };
 
   return (
     <>
@@ -69,7 +84,7 @@ export const Post = ({ post }: IProps) => {
                 @{postOwner.username}
               </Link>
               <span>·</span>
-              <span>{formattedDate}</span>
+              <span>{getFormattedDate()}</span>
             </span>
             {isMyPost && (
               <span className="flex justify-end flex-1">
@@ -97,10 +112,12 @@ export const Post = ({ post }: IProps) => {
               <div
                 className="flex gap-1 items-center cursor-pointer group"
                 // FIXME: Create custom modal
-                onClick={() => {}}
-                // document
-                //   .getElementById("comments_modal" + post._id)
-                //   ?.showModal?.()
+                onClick={() => {
+                  const dialog = document.getElementById(
+                    "comments_modal" + post._id
+                  ) as HTMLDialogElement;
+                  dialog.showModal();
+                }}
               >
                 <FaRegComment className="w-4 h-4  text-slate-500 group-hover:text-sky-400" />
                 <span className="text-sm text-slate-500 group-hover:text-sky-400">
@@ -175,14 +192,17 @@ export const Post = ({ post }: IProps) => {
                   0
                 </span>
               </div>
-              <div
+              <button
                 className="flex gap-1 items-center group cursor-pointer"
+                disabled={isLiking}
                 onClick={handleLikePost}
               >
-                {!isLiked && (
+                {isLiking && <LoadingSpinner size="xs" />}
+
+                {!isLiked && !isLiking && (
                   <FaRegHeart className="w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500" />
                 )}
-                {isLiked && (
+                {isLiked && !isLiking && (
                   <FaRegHeart className="w-4 h-4 cursor-pointer text-pink-500 " />
                 )}
 
@@ -193,7 +213,7 @@ export const Post = ({ post }: IProps) => {
                 >
                   {post.likes.length}
                 </span>
-              </div>
+              </button>
             </div>
             <div className="flex w-1/3 justify-end gap-2 items-center">
               <FaRegBookmark className="w-4 h-4 text-slate-500 cursor-pointer" />
