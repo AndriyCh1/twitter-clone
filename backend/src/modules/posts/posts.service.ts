@@ -2,8 +2,8 @@ import { inject, injectable } from 'inversify';
 import sharp from 'sharp';
 
 import TYPES from '../../common/constants/container-types';
-import { Notification, NotificationType, User } from '../../common/models';
-import Post from '../../common/models/posts.model';
+import { Notification, NotificationType, Post, User } from '../../common/models';
+import { cloudfrontPath } from '../../common/utils/cloudfront-path';
 import { env } from '../../common/utils/env-config';
 import { generateUniqueKey } from '../../common/utils/generate-unique-key';
 import { ForbiddenException, NotFoundException } from '../../config';
@@ -17,11 +17,6 @@ const IMAGE_UPLOAD_BUCKET = env.S3_BUCKET;
 export class PostsService {
   constructor(@inject(TYPES.S3Service) private readonly s3Service: S3Service) {}
 
-  /** Build post image url from image key in S3 */
-  private getPostImageUrl = (img: string) => {
-    return env.CLOUDFRONT_URL + '/' + img;
-  };
-
   public async getAllPosts() {
     const posts = await Post.find()
       .sort({ createdAt: -1 })
@@ -29,8 +24,9 @@ export class PostsService {
       .populate({ path: 'comments.user', select: { password: 0 } });
 
     for (const post of posts) {
-      if (post.img) post.img = this.getPostImageUrl(post.img);
+      if (post.img) post.img = cloudfrontPath(post.img);
     }
+
     return posts;
   }
 
@@ -56,7 +52,7 @@ export class PostsService {
       .populate({ path: 'comments.user', select: { password: 0 } });
 
     for (const post of posts) {
-      if (post.img) post.img = this.getPostImageUrl(post.img);
+      if (post.img) post.img = cloudfrontPath(post.img);
     }
 
     return posts;
@@ -73,7 +69,7 @@ export class PostsService {
       .populate({ path: 'comments.user', select: { password: 0 } });
 
     for (const post of posts) {
-      if (post.img) post.img = this.getPostImageUrl(post.img);
+      if (post.img) post.img = cloudfrontPath(post.img);
     }
 
     return posts;
@@ -96,7 +92,7 @@ export class PostsService {
     const newPost = new Post({ user: userId, text, img: imageName });
 
     await newPost.save();
-    if (imageName) newPost.img = this.getPostImageUrl(imageName);
+    if (imageName) newPost.img = cloudfrontPath(imageName);
     return newPost;
   }
 
@@ -109,7 +105,8 @@ export class PostsService {
     if (isLiked) {
       await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
       await User.updateOne({ _id: userId }, { $pull: { likedPosts: postId } });
-      return;
+      const updatedLikes = post.likes.filter((id) => id.toString() !== userId.toString());
+      return updatedLikes;
     }
 
     post.likes.push(userId);
@@ -123,6 +120,8 @@ export class PostsService {
     });
 
     await notification.save();
+
+    return post.likes;
   }
 
   public async commentOnPost(postId: string, data: CommentPostData, userId: string) {
@@ -134,7 +133,7 @@ export class PostsService {
       $push: { comments: { text: data.text, user: userId } },
     });
 
-    if (updatedPost?.img) updatedPost.img = this.getPostImageUrl(updatedPost.img);
+    if (updatedPost?.img) updatedPost.img = cloudfrontPath(updatedPost.img);
     return updatedPost;
   }
 

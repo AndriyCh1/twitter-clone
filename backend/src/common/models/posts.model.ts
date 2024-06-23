@@ -41,4 +41,4 @@ const postSchema = new mongoose.Schema(
 
 const Post = mongoose.model<IPost>('Post', postSchema);
 
-export default Post;
+export { Post };
