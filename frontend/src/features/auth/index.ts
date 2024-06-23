@@ -1,2 +1,2 @@
 export * from "./components";
-export { useLogout, useAuthUser } from "./api";
+export { useLogout, useAuthUser, authKeys } from "./api";

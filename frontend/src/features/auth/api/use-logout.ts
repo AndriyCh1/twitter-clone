@@ -12,7 +12,7 @@ export const useLogout = () => {
       toast.error(getErrorMessage(error));
     },
     onSuccess: () => {
-      queryClient.setQueryData(authKeys.auth(), null);
+      queryClient.setQueryData(authKeys.authUser(), null);
     },
     retry: 0,
   });

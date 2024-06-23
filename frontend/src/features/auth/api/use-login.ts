@@ -9,7 +9,7 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: (data: ILoginPayload) => authService.login(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: authKeys.auth() });
+      queryClient.invalidateQueries({ queryKey: authKeys.authUser() });
     },
   });
 };

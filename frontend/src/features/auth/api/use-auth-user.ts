@@ -4,7 +4,7 @@ import { authService } from "./auth-service";
 
 export const useAuthUser = () => {
   return useQuery({
-    queryKey: authKeys.auth(),
+    queryKey: authKeys.authUser(),
     queryFn: () => authService.getAuthUser(),
     retry: 1,
   });
