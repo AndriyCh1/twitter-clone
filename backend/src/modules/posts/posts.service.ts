@@ -129,9 +129,11 @@ export class PostsService {
 
     if (!post) throw new NotFoundException('Post not found');
 
-    const updatedPost = await Post.findByIdAndUpdate(post._id, {
-      $push: { comments: { text: data.text, user: userId } },
-    });
+    const updatedPost = await Post.findByIdAndUpdate(
+      post._id,
+      { $push: { comments: { text: data.text, user: userId } } },
+      { returnDocument: 'after' }
+    );
 
     if (updatedPost?.img) updatedPost.img = cloudfrontPath(updatedPost.img);
     return updatedPost;

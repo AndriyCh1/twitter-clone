@@ -1,5 +1,11 @@
 import { apiService } from "../../../app/api-service";
-import { IPost, IPostCreatePayload, IPostCreateResponse } from "../types";
+import {
+  ICommentPostPayload,
+  ICommentPostResponse,
+  IPost,
+  IPostCreatePayload,
+  IPostCreateResponse,
+} from "../types";
 
 class PostsService {
   public async getAllPosts() {
@@ -43,6 +49,14 @@ class PostsService {
 
   public async likePost(postId: string) {
     const res = await apiService.patch<string[]>(`/posts/like/${postId}`);
+    return res.data;
+  }
+
+  public async commentPost(postId: string, data: ICommentPostPayload) {
+    const res = await apiService.patch<ICommentPostResponse>(
+      `/posts/comment/${postId}`,
+      data
+    );
     return res.data;
   }
 }

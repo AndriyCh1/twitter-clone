@@ -3,11 +3,11 @@ import { BiRepost } from "react-icons/bi";
 import { FaRegHeart } from "react-icons/fa";
 import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { IPost } from "../types";
 import { useAuthUser } from "../../auth";
-import { useDeletePost, useLikePost } from "../api";
+import { useCommentPost, useDeletePost, useLikePost } from "../api";
 import { LoadingSpinner } from "../../../components/ui";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "../../../utils/error-message";
@@ -26,6 +26,7 @@ export const Post = ({ post }: IProps) => {
   } = useDeletePost();
 
   const { mutate: likePost, isPending: isLiking } = useLikePost();
+  const { mutate: commentPost, isPending: isCommenting } = useCommentPost();
 
   useEffect(() => {
     if (deleteError) {
@@ -38,14 +39,16 @@ export const Post = ({ post }: IProps) => {
   const isLiked = post.likes.includes(authUser?._id || "");
 
   const isMyPost = authUser?._id === postOwner._id;
-  const isCommenting = false;
 
   const handleDeletePost = () => {
     deletePostMutate(post._id);
   };
 
-  const handlePostComment = (e: React.FormEvent) => {
+  const handlePostComment = (e: FormEvent) => {
     e.preventDefault();
+    if (isCommenting) return;
+    commentPost({ postId: post._id, text: comment });
+    setComment("");
   };
 
   const handleLikePost = () => {
