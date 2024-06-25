@@ -5,11 +5,12 @@ import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { FormEvent, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
+
 import { IPost } from "../types";
 import { useAuthUser } from "../../auth";
 import { useCommentPost, useDeletePost, useLikePost } from "../api";
 import { LoadingSpinner } from "../../../components/ui";
-import toast from "react-hot-toast";
 import { getErrorMessage } from "../../../utils/error-message";
 import { hoursAgoOrDate } from "../../../utils/format-date";
 

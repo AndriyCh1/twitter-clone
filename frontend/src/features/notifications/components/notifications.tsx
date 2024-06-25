@@ -4,33 +4,14 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
 import { LoadingSpinner } from "../../../components/ui";
+import { useDeleteNotifications, useGetNotifications } from "../api";
 
 export const Notifications = () => {
-  const isLoading = false;
-  const notifications = [
-    {
-      _id: "1",
-      from: {
-        _id: "1",
-        username: "johndoe",
-        profileImg: "/avatars/boy2.png",
-      },
-      type: "follow",
-    },
-    {
-      _id: "2",
-      from: {
-        _id: "2",
-        username: "janedoe",
-        profileImg: "/avatars/girl1.png",
-      },
-      type: "like",
-    },
-  ];
+  const { data: notifications, isLoading: notificationsLoading } =
+    useGetNotifications();
 
-  const deleteNotifications = () => {
-    console.log("All notifications deleted");
-  };
+  const { mutate: deleteNotifications, isPending: deleteNotificationPending } =
+    useDeleteNotifications();
 
   return (
     <>
@@ -46,12 +27,14 @@ export const Notifications = () => {
               className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
             >
               <li>
-                <a onClick={deleteNotifications}>Delete all notifications</a>
+                <a onClick={() => deleteNotifications()}>
+                  Delete all notifications
+                </a>
               </li>
             </ul>
           </div>
         </div>
-        {isLoading && (
+        {(notificationsLoading || deleteNotificationPending) && (
           <div className="flex justify-center h-full items-center">
             <LoadingSpinner size="lg" />
           </div>
