@@ -11,11 +11,12 @@ const defaultOptions = {
 };
 
 export const useGetUserProfile = (
+  userId: string,
   username: string,
   options: IQueryOptions = defaultOptions
 ) => {
   return useQuery({
-    queryKey: usersKeys.profile(username),
+    queryKey: usersKeys.profile(userId),
     queryFn: () => usersService.getUserProfile(username),
     enabled: options.enabled,
   });

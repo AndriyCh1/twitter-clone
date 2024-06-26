@@ -1,16 +1,48 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { IProfileUser } from "../types";
 import { CoverImage } from "./cover-image";
 import { ProfileAvatar } from "./profile-avatar";
 import { EditProfileModal, ProfileHeaderDetails } from ".";
+import { useAuthUser } from "../../auth";
+import { IUpdateUserPayload, useFollow, useUpdateProfile } from "../../users";
+import { convertToBase64 } from "../../../utils/img-to-base64";
 
 interface IProps {
   user: IProfileUser;
 }
 export const ProfileHeader = ({ user }: IProps) => {
+  const { data: authUser } = useAuthUser();
+  const { mutate: follow, isPending: isFollowPending } = useFollow();
+  const { mutate: updatedProfile, isPending: isUpdateProfilePending } =
+    useUpdateProfile();
+
   const [coverImg, setCoverImg] = useState<string | null>(null); // base64 string
   const [profileImg, setProfileImg] = useState<string | null>(null); // base64 string
-  const isMyProfile = true;
+
+  const coverImgFileRef = useRef<File | null>(null);
+  const profileImgFileRef = useRef<File | null>(null);
+
+  const isMyProfile = authUser?._id === user?._id;
+  const isFollower = authUser?.following.includes(user?._id);
+
+  const handleFollow = () => {
+    follow(user._id);
+  };
+
+  const handleUpdateProfile = (data: IUpdateUserPayload) => {
+    if (!authUser) return;
+    updatedProfile({ ...data, id: authUser._id });
+  };
+
+  const handlePickCoverImg = (img: File) => {
+    coverImgFileRef.current = img;
+    convertToBase64(img, setCoverImg);
+  };
+
+  const handlePickProfileImg = (img: File) => {
+    profileImgFileRef.current = img;
+    convertToBase64(img, setProfileImg);
+  };
 
   return (
     <>
@@ -18,14 +50,14 @@ export const ProfileHeader = ({ user }: IProps) => {
         <CoverImage
           enableEdit={isMyProfile}
           img={coverImg || user?.coverImg}
-          onChange={(img) => setCoverImg(img)}
+          onChange={handlePickCoverImg}
         />
 
         <div className="avatar absolute -bottom-16 left-4">
           <ProfileAvatar
             img={profileImg || user?.profileImg}
             enableEdit
-            onChange={(img) => setProfileImg(img)}
+            onChange={handlePickProfileImg}
           />
         </div>
       </div>
@@ -34,17 +66,24 @@ export const ProfileHeader = ({ user }: IProps) => {
         {!isMyProfile && (
           <button
             className="btn btn-outline rounded-full btn-sm"
-            onClick={() => alert("Followed successfully")}
+            onClick={handleFollow}
           >
-            Follow
+            {isFollowPending && "Loading..."}
+            {!isFollowPending && isFollower && "Unfollow"}
+            {!isFollowPending && !isFollower && "Follow"}
           </button>
         )}
         {(coverImg || profileImg) && (
           <button
             className="btn btn-primary rounded-full btn-sm text-white px-4 ml-2"
-            onClick={() => alert("Profile updated successfully")}
+            onClick={() =>
+              handleUpdateProfile({
+                coverImg: coverImgFileRef?.current || undefined,
+                profileImg: profileImgFileRef?.current || undefined,
+              })
+            }
           >
-            Update
+            {isUpdateProfilePending ? "Updating..." : "Update"}
           </button>
         )}
       </div>

@@ -3,6 +3,8 @@ import {
   IFollowResponse,
   IGetUserProfileResponse,
   ISuggestedUsersResponse,
+  IUpdateUserPayload,
+  IUpdateUserResponse,
 } from "../types";
 
 class UsersService {
@@ -23,6 +25,22 @@ class UsersService {
     const res = await apiService.put<IFollowResponse>(
       `/users/follow/${userId}`
     );
+    return res.data;
+  }
+
+  public async updateUser(data: IUpdateUserPayload) {
+    const formData = new FormData();
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (value) formData.append(key, value);
+    });
+
+    console.log(formData.entries());
+    const res = await apiService.put<IUpdateUserResponse>(
+      `/users/update`,
+      formData
+    );
+
     return res.data;
   }
 }

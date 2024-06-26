@@ -5,7 +5,7 @@ import { Uploader } from "../../../components/ui";
 interface IProps {
   enableEdit?: boolean;
   img?: string;
-  onChange?: (img: string) => void;
+  onChange?: (img: File) => void;
 }
 
 export const CoverImage = ({ enableEdit = false, img, onChange }: IProps) => {
@@ -13,9 +13,7 @@ export const CoverImage = ({ enableEdit = false, img, onChange }: IProps) => {
 
   const handleImgChange = (files: File[]) => {
     if (files.length) {
-      const reader = new FileReader();
-      reader.onload = () => onChange?.(reader.result as string);
-      reader.readAsDataURL(files[0]);
+      onChange?.(files[0]);
     }
   };
 
