@@ -10,6 +10,7 @@ const TYPES = {
   PostsController: Symbol.for('PostsController'),
   NotificationsController: Symbol.for('NotificationsController'),
   NotificationsService: Symbol.for('NotificationsService'),
+  HealthCheckController: Symbol.for('HealthCheckController'),
 };
 
 export default TYPES;

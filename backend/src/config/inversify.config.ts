@@ -5,6 +5,7 @@ import { DatabaseConnection } from '../database';
 import { AuthController } from '../modules/auth/auth.controller';
 import { AuthService } from '../modules/auth/auth.service';
 import { AccessTokenStrategy } from '../modules/auth/strategies/access-token.strategy';
+import { HealthCheckController } from '../modules/health-check/helth-check.controller';
 import { NotificationsController } from '../modules/notifications/notifications.controller';
 import { NotificationsService } from '../modules/notifications/notifications.service';
 import { PostsController } from '../modules/posts/posts.controller';
@@ -19,6 +20,7 @@ container.bind<AuthController>(TYPES.AuthController).to(AuthController);
 container.bind<UsersController>(TYPES.UsersController).to(UsersController);
 container.bind<PostsController>(TYPES.PostsController).to(PostsController);
 container.bind<NotificationsController>(TYPES.NotificationsController).to(NotificationsController);
+container.bind<HealthCheckController>(TYPES.HealthCheckController).to(HealthCheckController);
 
 container.bind<AuthService>(TYPES.AuthService).to(AuthService);
 container.bind<UsersService>(TYPES.UsersService).to(UsersService);
