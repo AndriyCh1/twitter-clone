@@ -15,4 +15,7 @@ export const env = cleanEnv(process.env, {
   S3_BUCKET: str(),
   CORS_ORIGIN: str(),
   CLOUDFRONT_URL: str(),
+  MONGO_INITDB_ROOT_USERNAME: str({ default: '' }),
+  MONGO_INITDB_ROOT_PASSWORD: str({ default: '' }),
+  MONGO_INITDB_DATABASE: str({ default: '' }),
 });

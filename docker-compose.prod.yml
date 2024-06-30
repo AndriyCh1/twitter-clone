@@ -1,0 +1,15 @@
+ version: "3"
+ services:
+  backend:
+    build:
+      context: "."
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+    ports:
+      - ${PORT}:${PORT}
+    env_file: ./.env
+    environment:
+      # https://github.com/privatenumber/tsx/issues/266#issuecomment-2074009982
+      - CHOKIDAR_USEPOLLING=true
+    command: npm start
