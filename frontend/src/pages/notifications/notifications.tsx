@@ -1,5 +1,10 @@
+import { Helmet } from "../../components/common";
 import { Notifications } from "../../features/notifications";
 
 export const NotificationsPage = () => {
-  return <Notifications />;
+  return (
+    <Helmet title="Notifications">
+      <Notifications />
+    </Helmet>
+  );
 };
