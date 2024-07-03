@@ -42,7 +42,7 @@ export const LoginForm = () => {
             <input
               type="text"
               className="grow"
-              placeholder="username"
+              placeholder="Email"
               {...register("email")}
             />
           </label>

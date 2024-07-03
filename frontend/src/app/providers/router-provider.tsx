@@ -6,6 +6,7 @@ import { AuthRoutes, MainLayout } from "../../components/layouts";
 import { routes } from "../consts";
 import { ProfilePage } from "../../pages/profile";
 import { NotificationsPage } from "../../pages/notifications";
+import { NotFoundPage } from "../../pages/not-found";
 
 export const router = createBrowserRouter([
   {
@@ -28,7 +29,7 @@ export const router = createBrowserRouter([
           { path: routes.home.path, element: <HomePage /> },
           { path: routes.profile.path, element: <ProfilePage /> },
           { path: routes.notifications.path, element: <NotificationsPage /> },
-          { path: "*", element: <HomePage /> }, // TODO: 404
+          { path: "*", element: <NotFoundPage /> }, // TODO: 404
         ],
       },
     ],

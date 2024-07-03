@@ -35,7 +35,6 @@ class UsersService {
       if (value) formData.append(key, value);
     });
 
-    console.log(formData.entries());
     const res = await apiService.put<IUpdateUserResponse>(
       `/users/update`,
       formData
