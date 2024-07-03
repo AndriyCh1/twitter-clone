@@ -23,10 +23,6 @@ export class PostsService {
       .populate({ path: 'user', select: { password: 0 } })
       .populate({ path: 'comments.user', select: { password: 0 } });
 
-    for (const post of posts) {
-      if (post.img) post.img = cloudfrontPath(post.img);
-    }
-
     return posts;
   }
 
@@ -51,10 +47,6 @@ export class PostsService {
       .populate({ path: 'user', select: { password: 0 } })
       .populate({ path: 'comments.user', select: { password: 0 } });
 
-    for (const post of posts) {
-      if (post.img) post.img = cloudfrontPath(post.img);
-    }
-
     return posts;
   }
 
@@ -67,10 +59,6 @@ export class PostsService {
       .sort({ createdAt: -1 })
       .populate({ path: 'user', select: { password: 0 } })
       .populate({ path: 'comments.user', select: { password: 0 } });
-
-    for (const post of posts) {
-      if (post.img) post.img = cloudfrontPath(post.img);
-    }
 
     return posts;
   }
@@ -89,10 +77,9 @@ export class PostsService {
       await this.s3Service.putObject(IMAGE_UPLOAD_BUCKET, imageName, buffer, img.mimetype);
     }
 
-    const newPost = new Post({ user: userId, text, img: imageName });
+    const newPost = new Post({ user: userId, text, img: imageName && cloudfrontPath(imageName) });
 
     await newPost.save();
-    if (imageName) newPost.img = cloudfrontPath(imageName);
     return newPost;
   }
 
@@ -135,7 +122,6 @@ export class PostsService {
       { returnDocument: 'after' }
     );
 
-    if (updatedPost?.img) updatedPost.img = cloudfrontPath(updatedPost.img);
     return updatedPost;
   }
 

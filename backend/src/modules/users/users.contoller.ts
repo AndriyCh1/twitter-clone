@@ -52,7 +52,6 @@ export class UsersController extends BaseHttpController {
     @requestBody() body: UpdateProfileDto,
     @request() req: IUserRequest & { files: { coverImg: MulterFile[]; profileImg: MulterFile[] } }
   ) {
-    console.log(req.files, 'req.files');
     const coverImg = req.files.coverImg?.[0];
     const profileImg = req.files.profileImg?.[0];
     return this.usersService.updateUserProfile(req.user.id, { ...body, coverImg, profileImg });

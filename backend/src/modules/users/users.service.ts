@@ -25,8 +25,6 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    if (user.profileImg) user.profileImg = cloudfrontPath(user.profileImg);
-    if (user.coverImg) user.coverImg = cloudfrontPath(user.coverImg);
     return user;
   }
 
@@ -42,11 +40,6 @@ export class UsersService {
         .filter((u) => !usersFollowedByMe.following.includes(u._id))
         .slice(0, 4)
         .map((u) => ({ ...u, password: null }));
-
-      for (const user of filtered) {
-        if (user.profileImg) user.profileImg = cloudfrontPath(user.profileImg);
-        if (user.coverImg) user.coverImg = cloudfrontPath(user.coverImg);
-      }
 
       return filtered;
     } catch (error) {
@@ -122,7 +115,7 @@ export class UsersService {
       const imageName = generateUniqueKey();
       await this.s3Service.putObject(IMAGE_UPLOAD_BUCKET, imageName, profileImg.buffer);
 
-      user.profileImg = imageName;
+      user.profileImg = cloudfrontPath(imageName);
     }
 
     if (coverImg) {
@@ -130,9 +123,9 @@ export class UsersService {
         await this.s3Service.removeObject(IMAGE_UPLOAD_BUCKET, user.coverImg);
       }
 
-      const imagePath = generateUniqueKey();
-      await this.s3Service.putObject(IMAGE_UPLOAD_BUCKET, imagePath, coverImg.buffer);
-      user.coverImg = imagePath;
+      const imageName = generateUniqueKey();
+      await this.s3Service.putObject(IMAGE_UPLOAD_BUCKET, imageName, coverImg.buffer);
+      user.coverImg = cloudfrontPath(imageName);
     }
 
     if (email && email !== user.email) {
@@ -151,9 +144,6 @@ export class UsersService {
     user.link = link || user.link;
     await user.save();
 
-    const updatedUser = await User.findById(id).select({ password: 0 });
-    if (updatedUser?.profileImg) updatedUser.profileImg = cloudfrontPath(updatedUser.profileImg);
-    if (updatedUser?.coverImg) updatedUser.coverImg = cloudfrontPath(updatedUser.coverImg);
-    return updatedUser;
+    return User.findById(id).select({ password: 0 });
   }
 }
