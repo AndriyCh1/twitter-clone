@@ -14,7 +14,7 @@ export const useUpdateProfile = () => {
       usersService.updateUser(userData),
     onSuccess: (_, userData) => {
       queryClient.invalidateQueries({
-        queryKey: usersKeys.profile(userData.id),
+        queryKey: usersKeys.profile(userData.username || ""),
       });
       queryClient.invalidateQueries({ queryKey: authKeys.authUser() });
     },

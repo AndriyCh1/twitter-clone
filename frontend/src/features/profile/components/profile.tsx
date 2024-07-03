@@ -2,12 +2,13 @@ import { useState } from "react";
 
 import { BackButton, ProfilePosts, ProfileHeader } from ".";
 
-import { ProfileHeaderSkeleton } from "../skeletons";
 import { SwitchFeed } from "../../../components/common";
 import { useAuthUser } from "../../auth";
 import { useGetUserProfile } from "../../users";
 import { useParams } from "react-router-dom";
 import { PostsCountProvider } from "../context/posts-count-context";
+import { UserNotFound } from "./user-not-found";
+import { ProfileHeaderSkeleton } from "../skeletons";
 
 const feedTypes = ["posts", "likes"] as const;
 
@@ -19,18 +20,9 @@ export const Profile = () => {
   const { username } = useParams();
 
   const { data: user, isLoading: isUserLoading } = useGetUserProfile(
-    authUser?._id as string,
-    authUser?.username as string,
+    username as string,
     { enabled: !!username }
   );
-
-  if (!username) {
-    return (
-      <div className="flex-[4_4_0]  border-r border-gray-700 min-h-screen ">
-        <p className="text-center text-lg mt-4">User not found</p>
-      </div>
-    );
-  }
 
   if (isAuthUserLoading || isUserLoading) {
     return (
@@ -40,12 +32,8 @@ export const Profile = () => {
     );
   }
 
-  if (!authUser || !user) {
-    return (
-      <div className="flex-[4_4_0]  border-r border-gray-700 min-h-screen ">
-        <p className="text-center text-lg mt-4">User not found</p>
-      </div>
-    );
+  if (!username || !authUser || !user) {
+    return <UserNotFound />;
   }
 
   return (
