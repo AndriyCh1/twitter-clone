@@ -6,6 +6,7 @@ import { IUser, Notification, User } from '../../common/models';
 import { cloudfrontPath } from '../../common/utils/cloudfront-path';
 import { env } from '../../common/utils/env-config';
 import { generateUniqueKey } from '../../common/utils/generate-unique-key';
+import { toObjectId } from '../../common/utils/to-object-id';
 import { BadRequestException, Logger, NotFoundException } from '../../config';
 import { S3Service } from '../../providers/s3/s3.service';
 import { UpdateProfileData } from './types/update-profile.type';
@@ -34,7 +35,10 @@ export class UsersService {
 
       if (!usersFollowedByMe) return [];
 
-      const users: IUser[] = await User.aggregate([{ $match: { _id: { $ne: userId } } }, { $sample: { size: 10 } }]);
+      const users: IUser[] = await User.aggregate([
+        { $match: { _id: { $ne: toObjectId(userId) } } },
+        { $sample: { size: 10 } },
+      ]);
 
       const filtered = users
         .filter((u) => !usersFollowedByMe.following.includes(u._id))
