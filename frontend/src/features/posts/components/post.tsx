@@ -201,9 +201,7 @@ export const Post = ({ post }: IProps) => {
                 disabled={isLiking}
                 onClick={handleLikePost}
               >
-                {isLiking && <LoadingSpinner size="xs" />}
-
-                {!isLiked && !isLiking && (
+                {(!isLiked || isLiking) && (
                   <FaRegHeart className="w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500" />
                 )}
                 {isLiked && !isLiking && (

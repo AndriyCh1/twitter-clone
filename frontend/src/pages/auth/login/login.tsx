@@ -1,4 +1,4 @@
-import { Helmet } from "../../../components/common";
+import { Helmet } from "../../../components/ui";
 import { LoginForm } from "../../../features/auth";
 
 export const LoginPage = () => {

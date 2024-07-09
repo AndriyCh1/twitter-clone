@@ -1,30 +1,47 @@
 import { apiService } from "../../../app/api-service";
+import { IPaginatedResponse } from "../../../types";
 import {
   ICommentPostPayload,
   ICommentPostResponse,
+  IGetPostsPayload,
   IPost,
   IPostCreatePayload,
   IPostCreateResponse,
 } from "../types";
 
 class PostsService {
-  public async getAllPosts() {
-    const res = await apiService.get<IPost[]>("/posts");
+  public async getAllPosts(data: IGetPostsPayload) {
+    const res = await apiService.get<IPaginatedResponse<IPost>>(`/posts`, {
+      params: data,
+    });
     return res.data;
   }
 
-  public async getFollowingPosts() {
-    const res = await apiService.get<IPost[]>("/posts/following");
+  public async getFollowingPosts(data: IGetPostsPayload) {
+    const res = await apiService.get<IPaginatedResponse<IPost>>(
+      "/posts/following",
+      { params: data }
+    );
     return res.data;
   }
 
-  public async getUserPosts(username: string) {
-    const res = await apiService.get<IPost[]>(`/posts/user/${username}`);
+  public async getUserPosts(data: IGetPostsPayload & { username: string }) {
+    const { username, ...params } = data;
+    const res = await apiService.get<IPaginatedResponse<IPost>>(
+      `/posts/user/${username}`,
+      { params }
+    );
     return res.data;
   }
 
-  public async getLikedPosts(userId: string) {
-    const res = await apiService.get<IPost[]>(`/posts/liked/${userId}`);
+  public async getLikedPosts(data: IGetPostsPayload & { userId: string }) {
+    const { userId, ...params } = data;
+
+    const res = await apiService.get<IPaginatedResponse<IPost>>(
+      `/posts/liked/${userId}`,
+      { params }
+    );
+
     return res.data;
   }
 

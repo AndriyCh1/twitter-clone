@@ -1,9 +1,11 @@
 export { Posts, CreatePost } from "./components";
 export {
   postsKeys,
-  useGetAllPosts,
-  useGetLikedPosts,
-  useGetUserPosts,
   useDeletePost,
-  useGetFollowingPosts,
+  useInfiniteAllPosts,
+  useInfiniteFollowingPosts,
+  useInfiniteLikedPosts,
+  useInfiniteUserPosts,
 } from "./api";
+
+export type { IPost } from "./types";

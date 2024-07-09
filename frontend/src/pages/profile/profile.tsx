@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { Helmet } from "../../components/common";
+import { Helmet } from "../../components/ui";
 import { Profile } from "../../features/profile";
 
 export const ProfilePage = () => {

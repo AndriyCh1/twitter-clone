@@ -1,4 +1,4 @@
-import { Helmet } from "../../components/common";
+import { Helmet } from "../../components/ui";
 
 export const NotFoundPage = () => {
   return (

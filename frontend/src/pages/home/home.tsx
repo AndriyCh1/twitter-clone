@@ -1,4 +1,4 @@
-import { Helmet } from "../../components/common";
+import { Helmet } from "../../components/ui";
 import { Home } from "../../features/home";
 
 export const HomePage = () => {
