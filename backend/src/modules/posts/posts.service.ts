@@ -6,10 +6,10 @@ import { Notification, NotificationType, Post, User } from '../../common/models'
 import { cloudfrontPath } from '../../common/utils/cloudfront-path';
 import { env } from '../../common/utils/env-config';
 import { generateUniqueKey } from '../../common/utils/generate-unique-key';
+import { paginate } from '../../common/utils/paginate-response';
 import { ForbiddenException, NotFoundException } from '../../config';
 import { S3Service } from '../../providers/s3/s3.service';
-import { CommentPostData } from './types/comment-post-data.type';
-import { CreatePostData } from './types/create-post-data.type';
+import { CommentPostData, CreatePostData, GetPostsData } from './types';
 
 const IMAGE_UPLOAD_BUCKET = env.S3_BUCKET;
 
@@ -17,50 +17,79 @@ const IMAGE_UPLOAD_BUCKET = env.S3_BUCKET;
 export class PostsService {
   constructor(@inject(TYPES.S3Service) private readonly s3Service: S3Service) {}
 
-  public async getAllPosts() {
-    const posts = await Post.find()
-      .sort({ createdAt: -1 })
-      .populate({ path: 'user', select: { password: 0 } })
-      .populate({ path: 'comments.user', select: { password: 0 } });
+  public async getAllPosts(data: GetPostsData) {
+    const { page, pageSize } = data;
 
-    return posts;
+    const [posts, totalRecords] = await Promise.all([
+      Post.find()
+        .sort({ createdAt: -1 })
+        .populate({ path: 'user', select: { password: 0 } })
+        .populate({ path: 'comments.user', select: { password: 0 } })
+        .skip((page - 1) * pageSize)
+        .limit(pageSize),
+      Post.countDocuments(),
+    ]);
+
+    return paginate(posts, totalRecords, page, pageSize);
   }
 
-  public async getUserPosts(username: string) {
+  public async getUserPosts(data: GetPostsData & { username: string }) {
+    const { page, pageSize, username } = data;
     const user = await User.findOne({ username }).select({ password: 0 });
     if (!user) throw new NotFoundException('User not found');
 
-    const posts = await Post.find({ user: user._id })
-      .sort({ createdAt: -1 })
-      .populate({ path: 'user', select: { password: 0 } })
-      .populate({ path: 'comments.user', select: { password: 0 } });
-    return posts || [];
+    const [posts, totalRecords] = await Promise.all([
+      Post.find({ user: user._id })
+        .sort({ createdAt: -1 })
+        .populate({ path: 'user', select: { password: 0 } })
+        .populate({ path: 'comments.user', select: { password: 0 } })
+        .skip((page - 1) * pageSize)
+        .limit(pageSize),
+      Post.countDocuments({ user: user._id }),
+    ]);
+    return paginate(posts, totalRecords, page, pageSize);
   }
 
-  public async getLikedPosts(userId: string) {
+  public async getLikedPosts(data: GetPostsData & { userId: string }) {
+    const { page, pageSize, userId } = data;
+
     const user = await User.findById(userId);
 
     if (!user) throw new NotFoundException('User not found');
 
-    const posts = await Post.find({ _id: { $in: user.likedPosts } })
-      .sort({ createdAt: -1 })
-      .populate({ path: 'user', select: { password: 0 } })
-      .populate({ path: 'comments.user', select: { password: 0 } });
+    const [posts, totalRecords] = await Promise.all([
+      Post.find({ _id: { $in: user.likedPosts } })
+        .sort({ createdAt: -1 })
+        .populate({ path: 'user', select: { password: 0 } })
+        .populate({ path: 'comments.user', select: { password: 0 } })
+        .skip((page - 1) * pageSize)
+        .limit(pageSize),
 
-    return posts;
+      Post.countDocuments({ _id: { $in: user.likedPosts } }),
+    ]);
+
+    return paginate(posts, totalRecords, page, pageSize);
   }
 
-  public async getFollowingPosts(userId: string) {
+  public async getFollowingPosts(data: GetPostsData & { userId: string }) {
+    const { page, pageSize, userId } = data;
+    const skip = (page - 1) * pageSize;
+
     const user = await User.findById(userId);
 
     if (!user) throw new NotFoundException('User not found');
 
-    const posts = await Post.find({ user: { $in: user.following } })
-      .sort({ createdAt: -1 })
-      .populate({ path: 'user', select: { password: 0 } })
-      .populate({ path: 'comments.user', select: { password: 0 } });
+    const [posts, totalRecords] = await Promise.all([
+      Post.find({ user: { $in: user.following } })
+        .sort({ createdAt: -1 })
+        .populate({ path: 'user', select: { password: 0 } })
+        .populate({ path: 'comments.user', select: { password: 0 } })
+        .skip(skip)
+        .limit(pageSize),
+      Post.countDocuments({ user: { $in: user.following } }),
+    ]);
 
-    return posts;
+    return paginate(posts, totalRecords, page, pageSize);
   }
 
   public async createPost(data: CreatePostData, userId: string) {

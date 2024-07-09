@@ -6,6 +6,7 @@ import {
   httpGet,
   httpPatch,
   httpPost,
+  queryParam,
   request,
   requestBody,
   requestParam,
@@ -19,6 +20,7 @@ import { upload } from '../../config/multer.config';
 import { PostsService } from './posts.service';
 import { CommentPostDto, commentPostSchema } from './validators/comment-post.schema';
 import { CreatePostDto, createPostSchema } from './validators/create-post.schema';
+import { getPostsSchema } from './validators/get-posts.schema';
 
 type MulterFile = Express.Multer.File;
 
@@ -28,24 +30,37 @@ export class PostsController extends BaseHttpController {
     super();
   }
 
-  @httpGet('/')
-  public async getAllPosts() {
-    return this.postsService.getAllPosts();
+  @httpGet('/', validate(getPostsSchema))
+  public async getAllPosts(@queryParam('page') page: number = 1, @queryParam('pageSize') pageSize: number = 20) {
+    return this.postsService.getAllPosts({ page, pageSize });
   }
 
-  @httpGet('/user/:username', auth())
-  public async getUserPosts(@requestParam('username') username: string) {
-    return this.postsService.getUserPosts(username);
+  @httpGet('/user/:username', auth(), validate(getPostsSchema))
+  public async getUserPosts(
+    @requestParam('username') username: string,
+    @queryParam('page') page: number = 1,
+    @queryParam('pageSize') pageSize: number = 20
+  ) {
+    return this.postsService.getUserPosts({ username, page, pageSize });
   }
 
   @httpGet('/liked/:id', auth())
-  public async getLikedPosts(@requestParam('id') userId: string) {
-    return this.postsService.getLikedPosts(userId);
+  public async getLikedPosts(
+    @queryParam('page') page: number = 1,
+    @queryParam('pageSize') pageSize: number = 20,
+    @requestParam('id') userId: string
+  ) {
+    return this.postsService.getLikedPosts({ userId, page, pageSize });
   }
 
-  @httpGet('/following', auth())
-  public async getFollowingPosts(@request() req: IUserRequest) {
-    return this.postsService.getFollowingPosts(req.user.id);
+  @httpGet('/following', auth(), validate(getPostsSchema))
+  public async getFollowingPosts(
+    @queryParam('page') page: number = 1,
+    @queryParam('pageSize') pageSize: number = 20,
+    @request() req: IUserRequest
+  ) {
+    const dto = { page, pageSize, userId: req.user.id };
+    return this.postsService.getFollowingPosts(dto);
   }
 
   @httpPost('/', auth(), upload.single('img'), validate(createPostSchema))
