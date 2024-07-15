@@ -11,8 +11,7 @@ interface IGetPostsOptions {
 export const useInfiniteAllPosts = (options: IGetPostsOptions = {}) => {
   const { page, pageSize, enabled } = {
     page: 1,
-    pageSize: 5,
-    enabled: true,
+    pageSize: 20,
     ...options,
   };
   return useInfiniteQuery({

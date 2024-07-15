@@ -8,7 +8,11 @@ export const useCreatePost = () => {
   return useMutation({
     mutationFn: (data: IPostCreatePayload) => postsService.createPost(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: postsKeys.posts() });
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          return query.queryKey.includes(postsKeys.posts()[0]);
+        },
+      });
     },
   });
 };

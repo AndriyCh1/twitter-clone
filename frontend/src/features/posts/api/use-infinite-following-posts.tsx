@@ -16,7 +16,7 @@ export const useInfiniteFollowingPosts = (options: IGetPostsOptions = {}) => {
     ...options,
   };
   return useInfiniteQuery({
-    queryKey: [...postsKeys.posts(), page, pageSize],
+    queryKey: [...postsKeys.followingPosts(), page, pageSize],
     queryFn: ({ pageParam = 1 }) =>
       postsService.getFollowingPosts({ pageSize, page: pageParam }),
     getNextPageParam: (lastPage, allPages) => {

@@ -19,7 +19,7 @@ export const useInfiniteUserPosts = (
     ...options,
   };
   return useInfiniteQuery({
-    queryKey: [...postsKeys.posts(), page, pageSize],
+    queryKey: [...postsKeys.userPosts(username), page, pageSize],
     queryFn: ({ pageParam = 1 }) =>
       postsService.getUserPosts({ pageSize, page: pageParam, username }),
     getNextPageParam: (lastPage, allPages) => {

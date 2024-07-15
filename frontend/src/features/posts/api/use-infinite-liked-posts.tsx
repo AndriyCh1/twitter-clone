@@ -19,7 +19,7 @@ export const useInfiniteLikedPosts = (
     ...options,
   };
   return useInfiniteQuery({
-    queryKey: [...postsKeys.posts(), page, pageSize],
+    queryKey: [...postsKeys.likedPosts(userId), page, pageSize],
     queryFn: ({ pageParam = 1 }) =>
       postsService.getLikedPosts({ pageSize, page: pageParam, userId }),
     getNextPageParam: (lastPage, allPages) => {
