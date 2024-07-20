@@ -18,9 +18,15 @@ import validate from '../../common/middlewares/validator.middleware';
 import { IUserRequest } from '../../common/types/user-request';
 import { upload } from '../../config/multer.config';
 import { PostsService } from './posts.service';
-import { CommentPostDto, commentPostSchema } from './validators/comment-post.schema';
-import { CreatePostDto, createPostSchema } from './validators/create-post.schema';
-import { getPostsSchema } from './validators/get-posts.schema';
+import {
+  CommentPostDto,
+  commentPostSchema,
+  CreatePostDto,
+  createPostSchema,
+  getPostsSchema,
+  SavePostDto,
+  savePostSchema,
+} from './validators';
 
 type MulterFile = Express.Multer.File;
 
@@ -90,5 +96,20 @@ export class PostsController extends BaseHttpController {
   public async deletePost(@requestParam('id') postId: string, @request() req: IUserRequest) {
     const userId = req.user.id;
     return this.postsService.deletePost(postId, userId);
+  }
+
+  @httpPost('/save', auth(), validate(savePostSchema))
+  public async savePost(@request() req: IUserRequest, @requestBody() dto: SavePostDto) {
+    return this.postsService.savePost(dto.postId, req.user.id);
+  }
+
+  @httpGet('/saved', auth(), validate(getPostsSchema))
+  public async getSavedPosts(
+    @queryParam('page') page: number = 1,
+    @queryParam('pageSize') pageSize: number = 20,
+    @request() req: IUserRequest
+  ) {
+    const dto = { page, pageSize, userId: req.user.id };
+    return this.postsService.getSavedPosts(dto);
   }
 }

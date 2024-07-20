@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+
 export interface IPost {
   user: string;
   text: string;
@@ -10,6 +11,7 @@ export interface IPost {
   }[];
 }
 
+// FIXME: Fix bad design - likes & comments
 const postSchema = new mongoose.Schema(
   {
     user: {

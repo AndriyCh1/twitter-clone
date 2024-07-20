@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify';
 import sharp from 'sharp';
 
 import TYPES from '../../common/constants/container-types';
-import { Notification, NotificationType, Post, User } from '../../common/models';
+import { Notification, NotificationType, Post, SavedPost, User } from '../../common/models';
 import { cloudfrontPath } from '../../common/utils/cloudfront-path';
 import { env } from '../../common/utils/env-config';
 import { generateUniqueKey } from '../../common/utils/generate-unique-key';
@@ -170,5 +170,33 @@ export class PostsService {
     await Post.findByIdAndDelete(post._id);
 
     return { message: 'Post deleted successfully' };
+  }
+
+  public async savePost(postId: string, userId: string) {
+    const post = await Post.findById(postId);
+    if (!post) throw new NotFoundException('Post not found');
+
+    await SavedPost.create({ userId, postId });
+  }
+
+  public async getSavedPosts(data: GetPostsData & { userId: string }) {
+    const { userId, page, pageSize } = data;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const [posts, totalRecords] = await Promise.all([
+      SavedPost.find({ userId })
+        .populate({ path: 'userId', select: { password: 0, likedPosts: 0, followers: 0, following: 0 } })
+        .populate({ path: 'postId' })
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * pageSize)
+        .limit(pageSize),
+      SavedPost.countDocuments({ userId }),
+    ]);
+
+    return paginate(posts, totalRecords, page, pageSize);
   }
 }
