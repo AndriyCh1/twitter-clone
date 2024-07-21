@@ -36,9 +36,13 @@ export class PostsController extends BaseHttpController {
     super();
   }
 
-  @httpGet('/', validate(getPostsSchema))
-  public async getAllPosts(@queryParam('page') page: number = 1, @queryParam('pageSize') pageSize: number = 20) {
-    return this.postsService.getAllPosts({ page, pageSize });
+  @httpGet('/', auth(), validate(getPostsSchema))
+  public async getAllPosts(
+    @request() req: IUserRequest,
+    @queryParam('page') page: number = 1,
+    @queryParam('pageSize') pageSize: number = 20
+  ) {
+    return this.postsService.getAllPosts({ page, pageSize, userId: req.user?.id });
   }
 
   @httpGet('/user/:username', auth(), validate(getPostsSchema))
@@ -48,7 +52,7 @@ export class PostsController extends BaseHttpController {
     @queryParam('page') page: number = 1,
     @queryParam('pageSize') pageSize: number = 20
   ) {
-    return this.postsService.getUserPosts({ username, page, pageSize, authUserId: req.user.id });
+    return this.postsService.getUserPosts({ username, page, pageSize, authUserId: req.user?.id });
   }
 
   @httpGet('/liked/:id', auth())
@@ -110,7 +114,7 @@ export class PostsController extends BaseHttpController {
     @queryParam('pageSize') pageSize: number = 20,
     @request() req: IUserRequest
   ) {
-    const dto = { page, pageSize, userId: req.user.id };
+    const dto = { page, pageSize, userId: req.user?.id };
     return this.postsService.getSavedPosts(dto);
   }
 }
