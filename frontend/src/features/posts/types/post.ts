@@ -25,7 +25,7 @@ export interface IPost {
   user: IUser;
   comments: IComment[];
   likes: string[];
-
+  isSaved?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

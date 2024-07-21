@@ -76,6 +76,18 @@ class PostsService {
     );
     return res.data;
   }
+
+  public async saveUnsavePost(postId: string) {
+    await apiService.post("/posts/save", { postId });
+  }
+
+  public async getSavedPosts(data: IGetPostsPayload) {
+    const res = await apiService.get<IPaginatedResponse<IPost>>(
+      "/posts/saved",
+      { params: data }
+    );
+    return res.data;
+  }
 }
 
 export const postsService = new PostsService();

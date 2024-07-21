@@ -1,4 +1,4 @@
-export { Posts, CreatePost } from "./components";
+export { Posts, CreatePost, SavedPosts } from "./components";
 export {
   postsKeys,
   useDeletePost,

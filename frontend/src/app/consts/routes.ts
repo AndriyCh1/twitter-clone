@@ -7,4 +7,8 @@ export const routes = {
     path: "/profile/:username",
     build: (username: string) => `/profile/${username}`,
   },
+  savedPosts: {
+    path: "saved",
+    build: () => "saved",
+  },
 };

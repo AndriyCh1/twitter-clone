@@ -7,6 +7,7 @@ import { routes } from "../consts";
 import { ProfilePage } from "../../pages/profile";
 import { NotificationsPage } from "../../pages/notifications";
 import { NotFoundPage } from "../../pages/not-found";
+import { SavedPostsPage } from "../../pages/saved-posts";
 
 export const router = createBrowserRouter([
   {
@@ -29,7 +30,8 @@ export const router = createBrowserRouter([
           { path: routes.home.path, element: <HomePage /> },
           { path: routes.profile.path, element: <ProfilePage /> },
           { path: routes.notifications.path, element: <NotificationsPage /> },
-          { path: "*", element: <NotFoundPage /> }, // TODO: 404
+          { path: routes.savedPosts.path, element: <SavedPostsPage /> },
+          { path: "*", element: <NotFoundPage /> },
         ],
       },
     ],

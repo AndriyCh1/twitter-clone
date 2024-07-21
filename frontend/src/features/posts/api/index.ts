@@ -6,3 +6,5 @@ export * from "./use-infinite-all-posts";
 export * from "./use-infinite-following-posts";
 export * from "./use-infinite-user-posts";
 export * from "./use-infinite-liked-posts";
+export * from "./use-infinite-saved-posts";
+export * from "./use-save-post";

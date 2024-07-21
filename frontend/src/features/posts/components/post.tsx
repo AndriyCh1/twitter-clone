@@ -9,10 +9,16 @@ import toast from "react-hot-toast";
 
 import { IPost } from "../types";
 import { useAuthUser } from "../../auth";
-import { useCommentPost, useDeletePost, useLikePost } from "../api";
+import {
+  useCommentPost,
+  useDeletePost,
+  useLikePost,
+  useSavePost,
+} from "../api";
 import { LoadingSpinner } from "../../../components/ui";
 import { getErrorMessage } from "../../../utils/error-message";
 import { hoursAgoOrDate } from "../../../utils/format-date";
+import { cn } from "../../../utils/cn";
 
 interface IProps {
   post: IPost;
@@ -28,6 +34,7 @@ export const Post = ({ post }: IProps) => {
 
   const { mutate: likePost, isPending: isLiking } = useLikePost();
   const { mutate: commentPost, isPending: isCommenting } = useCommentPost();
+  const { mutate: savePost } = useSavePost();
 
   useEffect(() => {
     if (deleteError) {
@@ -54,6 +61,10 @@ export const Post = ({ post }: IProps) => {
 
   const handleLikePost = () => {
     likePost(post._id);
+  };
+
+  const handleSavePost = () => {
+    savePost(post._id);
   };
 
   const getFormattedDate = () => {
@@ -83,7 +94,7 @@ export const Post = ({ post }: IProps) => {
             <Link to={`/profile/${postOwner.username}`} className="font-bold">
               {postOwner.fullName}
             </Link>
-            <span className="text-gray-700 flex gap-1 text-sm">
+            <span className="text-gray-400 flex gap-1 text-sm">
               <Link to={`/profile/${postOwner.username}`}>
                 @{postOwner.username}
               </Link>
@@ -218,7 +229,13 @@ export const Post = ({ post }: IProps) => {
               </button>
             </div>
             <div className="flex w-1/3 justify-end gap-2 items-center">
-              <FaRegBookmark className="w-4 h-4 text-slate-500 cursor-pointer" />
+              <FaRegBookmark
+                className={cn(
+                  "w-4 h-4 text-slate-500 cursor-pointer",
+                  post.isSaved && "text-sky-500"
+                )}
+                onClick={handleSavePost}
+              />
             </div>
           </div>
         </div>

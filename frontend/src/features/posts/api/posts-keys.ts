@@ -7,4 +7,5 @@ export const postsKeys = {
     username,
   ],
   followingPosts: () => [...postsKeys.posts(), "following-posts"],
+  savedPosts: () => [...postsKeys.posts(), "saved-posts"],
 };
