@@ -1,17 +1,20 @@
 import { CiImageOn } from "react-icons/ci";
 import { BsEmojiSmileFill } from "react-icons/bs";
-import { FormEvent, useState } from "react";
+import { createRef, FormEvent, useState } from "react";
 import { IoCloseSharp } from "react-icons/io5";
+import EmojiPicker, { Theme, EmojiClickData } from "emoji-picker-react";
 import { Uploader } from "../../../components/ui";
 import { useCreatePost } from "../api/use-create-post";
 import { useAuthUser } from "../../auth";
 import { getErrorMessage } from "../../../utils/error-message";
+import { useOnClickOutside } from "usehooks-ts";
 
 export const CreatePost = () => {
   const [text, setText] = useState("");
   const [encodedImg, setEncodedImg] = useState<string>();
   const [imgFile, setImgFile] = useState<File>();
-
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const emojiPickerRef = createRef<HTMLDivElement>();
   const { data: user } = useAuthUser();
 
   const {
@@ -44,6 +47,17 @@ export const CreatePost = () => {
     }
   };
 
+  const handleOutsideEmojiPickerClick = () => {
+    setShowEmojiPicker(false);
+  };
+
+  const handlePickEmoji = (emojiData: EmojiClickData) => {
+    setText((prev) => prev + emojiData.emoji);
+    setShowEmojiPicker(false);
+  };
+
+  useOnClickOutside(emojiPickerRef, handleOutsideEmojiPickerClick);
+
   return (
     <div className="flex p-4 items-start gap-4 border-b border-gray-700">
       <div className="avatar">
@@ -59,7 +73,7 @@ export const CreatePost = () => {
           onChange={(e) => setText(e.target.value)}
         />
         {encodedImg && (
-          <div className="relative  mx-auto">
+          <div className="relative mx-auto">
             <IoCloseSharp
               className="absolute top-0 right-0 text-white bg-gray-800 rounded-full w-5 h-5 cursor-pointer"
               onClick={() => setEncodedImg(undefined)}
@@ -71,14 +85,27 @@ export const CreatePost = () => {
           </div>
         )}
 
-        <div className="flex justify-between border-t py-2 border-t-gray-700">
+        <div className="relative flex justify-between border-t py-2 border-t-gray-700">
           <div className="flex gap-1 items-center">
             <Uploader accept="image/*" onUpload={handleImgUpload}>
               <CiImageOn className="fill-primary w-6 h-6 cursor-pointer" />
             </Uploader>
-            <BsEmojiSmileFill className="fill-primary w-5 h-5 cursor-pointer" />
+            <BsEmojiSmileFill
+              className="fill-primary w-5 h-5 cursor-pointer"
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            />
+            <div
+              ref={emojiPickerRef}
+              className="absolute top-0 left-0 z-50 mt-2"
+            >
+              <EmojiPicker
+                open={showEmojiPicker}
+                theme={Theme.DARK}
+                lazyLoadEmojis={true}
+                onEmojiClick={(emoji) => handlePickEmoji(emoji)}
+              />
+            </div>
           </div>
-
           <button
             className="btn btn-primary rounded-full btn-sm text-white px-4"
             disabled={isPosting || (!text && !encodedImg)}
@@ -86,6 +113,7 @@ export const CreatePost = () => {
             {isPosting ? "Posting..." : "Post"}
           </button>
         </div>
+
         {isError && (
           <div className="text-red-500">{getErrorMessage(postError)}</div>
         )}
