@@ -43,11 +43,12 @@ export class PostsController extends BaseHttpController {
 
   @httpGet('/user/:username', auth(), validate(getPostsSchema))
   public async getUserPosts(
+    @request() req: IUserRequest,
     @requestParam('username') username: string,
     @queryParam('page') page: number = 1,
     @queryParam('pageSize') pageSize: number = 20
   ) {
-    return this.postsService.getUserPosts({ username, page, pageSize });
+    return this.postsService.getUserPosts({ username, page, pageSize, authUserId: req.user.id });
   }
 
   @httpGet('/liked/:id', auth())
@@ -100,7 +101,7 @@ export class PostsController extends BaseHttpController {
 
   @httpPost('/save', auth(), validate(savePostSchema))
   public async savePost(@request() req: IUserRequest, @requestBody() dto: SavePostDto) {
-    return this.postsService.savePost(dto.postId, req.user.id);
+    return this.postsService.saveUnsavePost(dto.postId, req.user.id);
   }
 
   @httpGet('/saved', auth(), validate(getPostsSchema))

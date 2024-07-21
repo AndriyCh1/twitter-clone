@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify';
 import sharp from 'sharp';
 
 import TYPES from '../../common/constants/container-types';
-import { Notification, NotificationType, Post, SavedPost, User } from '../../common/models';
+import { IPost, IUser, Notification, NotificationType, Post, SavedPost, User } from '../../common/models';
 import { cloudfrontPath } from '../../common/utils/cloudfront-path';
 import { env } from '../../common/utils/env-config';
 import { generateUniqueKey } from '../../common/utils/generate-unique-key';
@@ -17,8 +17,8 @@ const IMAGE_UPLOAD_BUCKET = env.S3_BUCKET;
 export class PostsService {
   constructor(@inject(TYPES.S3Service) private readonly s3Service: S3Service) {}
 
-  public async getAllPosts(data: GetPostsData) {
-    const { page, pageSize } = data;
+  public async getAllPosts(data: GetPostsData & { userId?: string }) {
+    const { page, pageSize, userId } = data;
 
     const [posts, totalRecords] = await Promise.all([
       Post.find()
@@ -26,15 +26,25 @@ export class PostsService {
         .populate({ path: 'user', select: { password: 0 } })
         .populate({ path: 'comments.user', select: { password: 0 } })
         .skip((page - 1) * pageSize)
-        .limit(pageSize),
+        .limit(pageSize)
+        .lean(),
       Post.countDocuments(),
     ]);
 
-    return paginate(posts, totalRecords, page, pageSize);
+    const postsWithIsSaved: (IPost & { isSaved: boolean })[] = [];
+
+    if (userId) {
+      for (const post of posts) {
+        const isSaved = await this.isPostSaved(post._id.toString(), userId);
+        postsWithIsSaved.push({ ...post, isSaved });
+      }
+    }
+
+    return paginate(postsWithIsSaved, totalRecords, page, pageSize);
   }
 
-  public async getUserPosts(data: GetPostsData & { username: string }) {
-    const { page, pageSize, username } = data;
+  public async getUserPosts(data: GetPostsData & { username: string; authUserId?: string }) {
+    const { page, pageSize, username, authUserId } = data;
     const user = await User.findOne({ username }).select({ password: 0 });
     if (!user) throw new NotFoundException('User not found');
 
@@ -44,10 +54,21 @@ export class PostsService {
         .populate({ path: 'user', select: { password: 0 } })
         .populate({ path: 'comments.user', select: { password: 0 } })
         .skip((page - 1) * pageSize)
-        .limit(pageSize),
+        .limit(pageSize)
+        .lean(),
       Post.countDocuments({ user: user._id }),
     ]);
-    return paginate(posts, totalRecords, page, pageSize);
+
+    const postsWithIsSaved: (IPost & { isSaved: boolean })[] = [];
+
+    if (authUserId) {
+      for (const post of posts) {
+        const isSaved = await this.isPostSaved(post._id.toString(), authUserId);
+        postsWithIsSaved.push({ ...post, isSaved });
+      }
+    }
+
+    return paginate(postsWithIsSaved, totalRecords, page, pageSize);
   }
 
   public async getLikedPosts(data: GetPostsData & { userId: string }) {
@@ -63,12 +84,20 @@ export class PostsService {
         .populate({ path: 'user', select: { password: 0 } })
         .populate({ path: 'comments.user', select: { password: 0 } })
         .skip((page - 1) * pageSize)
-        .limit(pageSize),
+        .limit(pageSize)
+        .lean(),
 
       Post.countDocuments({ _id: { $in: user.likedPosts } }),
     ]);
 
-    return paginate(posts, totalRecords, page, pageSize);
+    const postsWithIsSaved: (IPost & { isSaved: boolean })[] = [];
+
+    for (const post of posts) {
+      const isSaved = await this.isPostSaved(post._id.toString(), userId);
+      postsWithIsSaved.push({ ...post, isSaved });
+    }
+
+    return paginate(postsWithIsSaved, totalRecords, page, pageSize);
   }
 
   public async getFollowingPosts(data: GetPostsData & { userId: string }) {
@@ -85,11 +114,19 @@ export class PostsService {
         .populate({ path: 'user', select: { password: 0 } })
         .populate({ path: 'comments.user', select: { password: 0 } })
         .skip(skip)
-        .limit(pageSize),
+        .limit(pageSize)
+        .lean(),
       Post.countDocuments({ user: { $in: user.following } }),
     ]);
 
-    return paginate(posts, totalRecords, page, pageSize);
+    const postsWithIsSaved: (IPost & { isSaved: boolean })[] = [];
+
+    for (const post of posts) {
+      const isSaved = await this.isPostSaved(post._id.toString(), userId);
+      postsWithIsSaved.push({ ...post, isSaved });
+    }
+
+    return paginate(postsWithIsSaved, totalRecords, page, pageSize);
   }
 
   public async createPost(data: CreatePostData, userId: string) {
@@ -172,11 +209,19 @@ export class PostsService {
     return { message: 'Post deleted successfully' };
   }
 
-  public async savePost(postId: string, userId: string) {
+  public async saveUnsavePost(postId: string, userId: string) {
     const post = await Post.findById(postId);
+
     if (!post) throw new NotFoundException('Post not found');
 
-    await SavedPost.create({ userId, postId });
+    const foundPost = await SavedPost.findOne({ user: userId, post: postId });
+
+    if (foundPost) {
+      await SavedPost.findByIdAndDelete(foundPost._id);
+      return;
+    }
+
+    await SavedPost.create({ user: userId, post: postId });
   }
 
   public async getSavedPosts(data: GetPostsData & { userId: string }) {
@@ -187,16 +232,31 @@ export class PostsService {
       throw new NotFoundException('User not found');
     }
 
-    const [posts, totalRecords] = await Promise.all([
-      SavedPost.find({ userId })
-        .populate({ path: 'userId', select: { password: 0, likedPosts: 0, followers: 0, following: 0 } })
-        .populate({ path: 'postId' })
+    const [savedPosts, totalRecords] = await Promise.all([
+      SavedPost.find({ user: userId })
+        .populate({
+          path: 'post',
+          populate: [
+            { path: 'user', select: { password: 0, likedPosts: 0, followers: 0, following: 0 } },
+            {
+              path: 'comments',
+              populate: { path: 'user', select: { password: 0, likedPosts: 0, followers: 0, following: 0 } },
+            },
+          ],
+        })
         .sort({ createdAt: -1 })
         .skip((page - 1) * pageSize)
-        .limit(pageSize),
-      SavedPost.countDocuments({ userId }),
+        .limit(pageSize)
+        .lean() as Promise<{ _id: string; post: IPost; user: IUser }[]>,
+      SavedPost.countDocuments({ user: userId }),
     ]);
 
+    const posts = savedPosts.map((saved) => ({ ...saved.post, isSaved: true }));
     return paginate(posts, totalRecords, page, pageSize);
+  }
+
+  private async isPostSaved(postId: string, userId: string) {
+    const post = await SavedPost.findOne({ user: userId, post: postId });
+    return !!post;
   }
 }

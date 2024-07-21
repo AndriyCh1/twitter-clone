@@ -1,21 +1,21 @@
 import mongoose from 'mongoose';
 
 export interface ISavedPost {
-  userId: string;
-  postId: string;
+  user: string;
+  post: string;
 }
 
 export const savedPostSchema = new mongoose.Schema(
   {
-    userId: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
-    postId: {
+    post: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Post',
-      require: true,
+      required: true,
     },
   },
   {
@@ -24,7 +24,7 @@ export const savedPostSchema = new mongoose.Schema(
   }
 );
 
-savedPostSchema.index({ userId: 1, postId: 1 }, { unique: true });
+savedPostSchema.index({ user: 1, post: 1 }, { unique: true });
 
 const SavedPost = mongoose.model<ISavedPost>('saved-posts', savedPostSchema);
 
